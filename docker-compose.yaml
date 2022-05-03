@@ -1,0 +1,34 @@
+version: '3'
+services:
+  web.server.local:
+    depends_on:
+      - db.server.local
+      - app.server.local
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      args:
+        APPSERVER_ENDPOINT: app.server.local
+        DB_ENDPOINT: db.server.local
+    restart: always
+    ports:
+      - 80:80
+  app.server.local:
+    depends_on:
+      - db.server.local
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+      args:
+        APPSERVER_ENDPOINT: app.server.local
+        DB_ENDPOINT: db.server.local
+    ports:
+      - 8081:80
+    restart: always
+  db.server.local:
+    image: mysql:5.7
+    restart: always
+    environment:
+     MYSQL_ROOT_PASSWORD: redhat
+    volumes:
+      - ./mysql-init-file:/docker-entrypoint-initdb.d/:ro
